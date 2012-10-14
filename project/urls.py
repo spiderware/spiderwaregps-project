@@ -1,26 +1,32 @@
 #-*- coding: utf-8 -*-
+from django.conf.urls import patterns, include, url
 from django.conf import settings
-from django.conf.urls.defaults import patterns, include, url
-from django.conf.urls.static import static
 from django.contrib import admin
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+#from .sitemaps import sitemaps
+
 admin.autodiscover()
 
 urlpatterns = patterns('',
     # Examples:
-    # url(r'^$', 'project.views.home', name='home'),
-    # url(r'^project/', include('project.foo.urls')),
+    # url(r'^$', 'stefanfoulis.views.home', name='home'),
+    # url(r'^stefanfoulis/', include('stefanfoulis.foo.urls')),
 
-    # Uncomment the admin/doc line below to enable admin documentation:
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-
-    # Uncomment the next line to enable the admin:
+#    url(r'^$', Home.as_view()),
+#    url(r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap', {'sitemaps': sitemaps}),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^', 'core.views.upload', name="upload_binary_file"),
 )
 
+urlpatterns += patterns('',
+    url(r'^static/(?P<path>.*)$', 'django.contrib.staticfiles.views.serve', {'insecure': True}),
+)
+
 if settings.DEBUG:
-    # serve uploaded media
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    # serve staticfiles
-    urlpatterns += staticfiles_urlpatterns()
+    urlpatterns += patterns('',
+        url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
+    )
+
+urlpatterns += patterns('',
+    url(r'^', include('filer.server.urls')),
+    url(r'^', include('cms.urls')),
+)
